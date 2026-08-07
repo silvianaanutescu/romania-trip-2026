@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Drum Bun — Romania 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Yeseva+One&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<div class="auth-gate" id="authGate">
+  <div class="auth-card">
+    <div class="eyebrow">Drum Bun · Romania 2026</div>
+    <h2>Trip companion, guests only</h2>
+    <p>Sign in with the Google account you gave Silvi to see the itinerary.</p>
+    <div id="googleSignInBtn"></div>
+    <p class="auth-error" id="authError" style="display:none;"></p>
+  </div>
+</div>
+
+<div id="appRoot" style="display:none;">
+
+<div class="hero">
+  <div class="eyebrow">Aug 07 – 15, 2026 · Trip Companion</div>
+  <h1>Drum bun, România.</h1>
+  <p class="sub">Bucharest → Brașov → Bran → Bucharest → Constanța → Corbu → Bucharest. Everything Silvi, Abi, Lotta &amp; Jose need for this trip.</p>
+  <div class="route-strip" id="routeStrip"></div>
+</div>
+<div class="folk-border"></div>
+
+<!-- WELCOME -->
+<section class="view active" id="view-route">
+  <h2 class="section-title">Welcome</h2>
+  <p class="section-sub">A little bit about the country before we dive into logistics.</p>
+  <div id="welcomeContent"></div>
+</section>
+
+<!-- DAYS / LOGISTICS -->
+<section class="view" id="view-days">
+  <h2 class="section-title">Day by Day</h2>
+  <p class="section-sub">Times, routes, places to sleep. The essentials for getting around.</p>
+  <div id="daysList"></div>
+</section>
+
+<!-- CITIES -->
+<section class="view" id="view-cities">
+  <h2 class="section-title">City Guide</h2>
+  <p class="section-sub">Culture, food, sights, a few words of Romanian. Filled in city by city, right before we get there.</p>
+  <div class="city-tabs" id="cityTabs"></div>
+  <div id="cityPanels"></div>
+</section>
+
+<!-- ESSENTIALS -->
+<section class="view" id="view-essentials">
+  <h2 class="section-title">Trip Essentials</h2>
+  <p class="section-sub">Everything that applies across the whole trip, not just one city.</p>
+  <div class="ess-grid" id="essentialsList"></div>
+</section>
+
+<div class="tabbar">
+  <button class="tab-btn active" data-view="view-route"><span class="ico">👋</span>Welcome</button>
+  <button class="tab-btn" data-view="view-days"><span class="ico">📋</span>Days</button>
+  <button class="tab-btn" data-view="view-cities"><span class="ico">🏙️</span>Cities</button>
+  <button class="tab-btn" data-view="view-essentials"><span class="ico">🧭</span>Essentials</button>
+</div>
+
+<footer class="credit">drum bun · built for silvi, abi, lotta &amp; jose · <a href="#" id="signOutLink">sign out</a></footer>
+
+</div>
+
+<script src="auth.js"></script>
+<script src="app.js"></script>
+<script>
+  document.getElementById("signOutLink").addEventListener("click", (e) => {
+    e.preventDefault();
+    signOut();
+  });
+</script>
+</body>
+</html>
