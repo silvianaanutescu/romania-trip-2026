@@ -205,8 +205,11 @@ const CITY_SECTIONS = [
   { key: "sprache", label: "A Few Words", icon: "🗣️" },
 ];
 
+const EUR_TO_RON = 5.24;
+const FX_DATE = "Aug 8, 2026";
+
 const ESSENTIALS = [
-  { icon: "💶", title: "Currency", body: "Romanian Leu (RON). Coming soon: current exchange rate, card vs. cash situation, ATM notes." },
+  { icon: "💶", title: "Currency", body: "Romanian Leu (RON). Coming soon: card vs. cash situation, ATM notes.", calc: true },
   { icon: "🌤️", title: "Weather", body: "Coming soon: live forecast per leg of the trip, once the weather feature is wired up." },
   { icon: "✅", title: "Do's &amp; Don'ts", body: "Coming soon: local customs, tipping etiquette, what tends to land well in Romania and what doesn't." },
 ];
@@ -533,8 +536,49 @@ function renderEssentials(){
     <div class="info-block">
       <h4>${e.icon} ${e.title}</h4>
       <p>${e.body}</p>
+      ${e.calc ? `
+        <div class="fx-calc">
+          <div class="fx-row">
+            <span class="fx-code">EUR</span>
+            <input type="text" inputmode="decimal" id="fxEur" value="1">
+          </div>
+          <button type="button" class="fx-swap" id="fxSwap" aria-label="Swap order">⇅</button>
+          <div class="fx-row">
+            <span class="fx-code">RON</span>
+            <input type="text" inputmode="decimal" id="fxRon" value="${EUR_TO_RON.toString().replace(".", ",")}">
+          </div>
+        </div>
+        <div class="fx-rate">1 € = ${EUR_TO_RON.toString().replace(".", ",")} RON · 1 RON ≈ ${(1 / EUR_TO_RON).toFixed(2).replace(".", ",")} € · Rate as of ${FX_DATE}</div>
+      ` : ""}
     </div>
   `).join("");
+
+  if (document.getElementById("fxEur")) initCurrencyCalc();
+}
+
+function initCurrencyCalc(){
+  const eurInput = document.getElementById("fxEur");
+  const ronInput = document.getElementById("fxRon");
+  const swapBtn = document.getElementById("fxSwap");
+  const calc = document.querySelector(".fx-calc");
+
+  function parseNum(str){
+    const n = parseFloat(String(str).replace(",", "."));
+    return isNaN(n) ? 0 : n;
+  }
+  function fmt(n){
+    return n.toLocaleString("de-DE", { maximumFractionDigits: 2 });
+  }
+
+  eurInput.addEventListener("input", () => {
+    ronInput.value = fmt(parseNum(eurInput.value) * EUR_TO_RON);
+  });
+  ronInput.addEventListener("input", () => {
+    eurInput.value = fmt(parseNum(ronInput.value) / EUR_TO_RON);
+  });
+  swapBtn.addEventListener("click", () => {
+    calc.classList.toggle("fx-reversed");
+  });
 }
 
 function initTabs(){
