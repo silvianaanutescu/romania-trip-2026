@@ -26,15 +26,14 @@
 
 <div class="hero">
   <div class="eyebrow">Aug 07 – 15, 2026 · Trip Companion</div>
-  <h1>Drum bun, România.</h1>
-  <p class="sub">Bucharest → Brașov → Bran → Bucharest → Constanța → Corbu → Bucharest. Everything Silvi, Abi, Lotta &amp; Jose need for this trip.</p>
+  <h1>Welcome to Romania</h1>
+  <p class="sub">Everything Silvi, Abi, Lotta &amp; Jose need for this trip.</p>
   <div class="route-strip" id="routeStrip"></div>
 </div>
 <div class="folk-border"></div>
 
 <!-- WELCOME -->
 <section class="view active" id="view-route">
-  <h2 class="section-title">Welcome</h2>
   <p class="section-sub">A little bit about the country before we dive into logistics.</p>
   <div id="welcomeContent"></div>
 </section>
@@ -43,7 +42,8 @@
 <section class="view" id="view-days">
   <h2 class="section-title">Day by Day</h2>
   <p class="section-sub">Times, routes, places to sleep. The essentials for getting around.</p>
-  <div id="daysList"></div>
+  <div class="city-tabs" id="dayTabs"></div>
+  <div id="dayPanels"></div>
 </section>
 
 <!-- CITIES -->
@@ -63,12 +63,17 @@
 
 <div class="tabbar">
   <button class="tab-btn active" data-view="view-route"><span class="ico">👋</span>Welcome</button>
-  <button class="tab-btn" data-view="view-days"><span class="ico">📋</span>Days</button>
+  <button class="tab-btn" data-view="view-days"><span class="ico">📋</span>Schedule</button>
   <button class="tab-btn" data-view="view-cities"><span class="ico">🏙️</span>Cities</button>
   <button class="tab-btn" data-view="view-essentials"><span class="ico">🧭</span>Essentials</button>
 </div>
 
 <footer class="credit">drum bun · built for silvi, abi, lotta &amp; jose · <a href="#" id="signOutLink">sign out</a></footer>
+
+<div class="lightbox" id="lightbox">
+  <button type="button" class="lightbox-close" id="lightboxClose" aria-label="Close">&times;</button>
+  <img id="lightboxImg" src="" alt="">
+</div>
 
 </div>
 
@@ -78,6 +83,10 @@
   document.getElementById("signOutLink").addEventListener("click", (e) => {
     e.preventDefault();
     signOut();
+  });
+  document.getElementById("lightboxClose").addEventListener("click", closeLightbox);
+  document.getElementById("lightbox").addEventListener("click", (e) => {
+    if (e.target.id === "lightbox") closeLightbox();
   });
 </script>
 </body>

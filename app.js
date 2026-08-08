@@ -44,6 +44,14 @@ const GALLERY_IMAGES = [
   { src: "assets/images/carved-wooden-gate.jpg", alt: "A traditional carved wooden gate" },
 ];
 
+const BRASOV_GALLERY_IMAGES = [
+  { src: "assets/images/brasov-hollywood-sign.jpg", alt: "The Brașov sign on Tâmpa mountain, overlooking the city" },
+  { src: "assets/images/brasov-council-square-aerial.jpg", alt: "Aerial view of Piața Sfatului, Brașov's council square" },
+  { src: "assets/images/brasov-black-church-square.jpg", alt: "The Black Church towering over Piața Sfatului" },
+  { src: "assets/images/brasov-cable-car.jpg", alt: "The cable car up Tâmpa mountain in Brașov" },
+  { src: "assets/images/bran-castle-hillside.jpg", alt: "Bran Castle perched on its hillside near Brașov" },
+];
+
 const ROMANIA_FACTS = [
   { k: "Capital", v: "Bucharest" },
   { k: "Population", v: "≈ 19 million" },
@@ -52,6 +60,8 @@ const ROMANIA_FACTS = [
   { k: "EU / NATO", v: "EU since 2007, NATO since 2004" },
   { k: "Landscape", v: "Carpathians, Danube Delta, Black Sea coast" },
 ];
+
+const TRIP_YEAR = 2026;
 
 const DAYS = [
   {
@@ -68,13 +78,14 @@ const DAYS = [
     id: "d1", date: "Aug 08", weekday: "Saturday", title: "Bragadiru → Brașov",
     present: ["silvi", "abi", "lotta"],
     events: [
-      { time: "morning", type: "food", text: "Breakfast (with real tomatoes from the garden), view over Bragadiru" },
-      { time: "12:21", type: "train", text: "Departure to Brașov, train IC531" },
+      { time: "morning", type: "food", text: "Breakfast with Bubu (with real tomatoes from the garden), view over Bragadiru.", image: "assets/images/bubu-the-cat.png" },
+      { time: "12:21", type: "train", text: "Departure to Brașov, train IC531", cta: { label: "View ticket", image: "assets/images/cfr-ticket-brasov.png" } },
       { time: "14:36", type: "train", text: "Arrival in Brașov, check in at Iulia's", addr: ADDR.iulia },
       { time: "midday", type: "food", text: "Lunch in Brașov" },
       { time: "afternoon", type: "sight", text: "Exploring Brașov" },
       { time: "evening", type: "drinks", text: "Dinner &amp; drinks in town", meetup: "Meeting up with Sabina &amp; Christian" },
-    ]
+    ],
+    gallery: BRASOV_GALLERY_IMAGES
   },
   {
     id: "d2", date: "Aug 09", weekday: "Sunday", title: "Hiking around Brașov",
@@ -255,12 +266,24 @@ function renderWelcome(){
     </div>
   `;
 
-  initGallery();
+  initGallery("gallery", "galleryTrack");
 }
 
-function initGallery(){
-  const wrap = document.getElementById("gallery");
-  const track = document.getElementById("galleryTrack");
+function galleryHtml(images, wrapId, trackId){
+  return `
+    <div class="gallery-wrap">
+      <div class="gallery-scroll" id="${wrapId}">
+        <div class="gallery-track" id="${trackId}">
+          ${[...images, ...images].map(g => `<div class="gallery-item"><img src="${g.src}" alt="${g.alt}" draggable="false"></div>`).join("")}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function initGallery(wrapId, trackId){
+  const wrap = document.getElementById(wrapId);
+  const track = document.getElementById(trackId);
   if (!wrap || !track) return;
 
   const SPEED = 30; // px per second, continuous right-to-left drift
@@ -376,9 +399,23 @@ function renderRouteStrip(){
   `).join("");
 }
 
+function currentDayIndex(){
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tripDates = DAYS.map(d => new Date(`${d.date} ${TRIP_YEAR}`));
+  if (today <= tripDates[0]) return 0;
+  if (today >= tripDates[tripDates.length - 1]) return tripDates.length - 1;
+  return tripDates.findIndex(t => t.getTime() === today.getTime());
+}
+
 function renderDays(){
-  const el = document.getElementById("daysList");
-  el.innerHTML = DAYS.map(d => {
+  const tabsEl = document.getElementById("dayTabs");
+  const panelsEl = document.getElementById("dayPanels");
+  const activeIndex = currentDayIndex();
+
+  tabsEl.innerHTML = DAYS.map((d, i) => `<button data-day="${d.id}" class="${i===activeIndex ? 'active' : ''}">${d.date}</button>`).join("");
+
+  panelsEl.innerHTML = DAYS.map((d, i) => {
     const joinFlags = (d.joins || []).map(j => `<span class="join-flag">👋 ${CREW[j.id].name} joins · ${j.time}</span>`).join("");
     const byeFlags = (d.byes || []).map(j => `<span class="bye-flag">🥲 ${CREW[j.id].name} leaves · ${j.time}</span>`).join("");
 
@@ -387,9 +424,11 @@ function renderDays(){
         <div class="time">${e.time}</div>
         <div class="ico">${ICONS[e.type] || "•"}</div>
         <div class="txt">
+          ${e.image ? `<img class="event-photo" src="${e.image}" alt="">` : ""}
           ${e.text}
           ${e.addr ? addrHtml(e.addr, e.tbd) : ""}
           ${e.meetup ? `<span class="meetup-tag">${e.meetup}</span>` : ""}
+          ${e.cta ? `<button type="button" class="event-cta" data-lightbox="${e.cta.image}">${e.cta.label}</button>` : ""}
         </div>
       </div>
     `).join("");
@@ -402,22 +441,52 @@ function renderDays(){
     ` : "";
 
     return `
-      <div class="day">
-        <div class="day-head">
-          <div class="date-row">
-            <span class="daynum">${d.date}</span>
-            <span class="weekday">${d.weekday}</span>
+      <div class="city-panel ${i===activeIndex ? 'active' : ''}" id="day-${d.id}">
+        <div class="day">
+          <div class="day-head">
+            <div class="date-row">
+              <span class="daynum">${d.date}</span>
+              <span class="weekday">${d.weekday}</span>
+            </div>
+            <h3>${d.title}</h3>
+            <div class="crew-row">
+              ${d.present.map(avatarHtml).join("")}
+              ${joinFlags}${byeFlags}
+            </div>
           </div>
-          <h3>${d.title}</h3>
-          <div class="crew-row">
-            ${d.present.map(avatarHtml).join("")}
-            ${joinFlags}${byeFlags}
-          </div>
+          <div class="events">${eventsHtml}${optionsHtml}</div>
+          ${d.gallery ? `<div class="day-gallery">${galleryHtml(d.gallery, `gallery-${d.id}`, `galleryTrack-${d.id}`)}</div>` : ""}
         </div>
-        <div class="events">${eventsHtml}${optionsHtml}</div>
       </div>
     `;
   }).join("");
+
+  DAYS.filter(d => d.gallery).forEach(d => initGallery(`gallery-${d.id}`, `galleryTrack-${d.id}`));
+
+  tabsEl.querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      tabsEl.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      panelsEl.querySelectorAll(".city-panel").forEach(p => p.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById("day-" + btn.dataset.day).classList.add("active");
+    });
+  });
+
+  panelsEl.addEventListener("click", (e) => {
+    const btn = e.target.closest(".event-cta");
+    if (btn) openLightbox(btn.dataset.lightbox);
+  });
+}
+
+function openLightbox(src){
+  const lightbox = document.getElementById("lightbox");
+  document.getElementById("lightboxImg").src = src;
+  lightbox.classList.add("active");
+}
+
+function closeLightbox(){
+  document.getElementById("lightbox").classList.remove("active");
+  document.getElementById("lightboxImg").src = "";
 }
 
 function renderCitySection(cityId, key, label, icon){
